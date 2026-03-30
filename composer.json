@@ -1,0 +1,22 @@
+{
+    "name": "axenox/analytics",
+    "require": {
+        "exface/core": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "\\axenox\\Analytics\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Config/",
+            "/Translations/",
+            "/Model/"
+        ]
+    },
+    "extra": {
+        "app": {
+            "app_uid": "0x11f1985b1f397c68985b025041000001",
+            "app_alias": "axenox.Analytics"
+        }
+    }
+}
