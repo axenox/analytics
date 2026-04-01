@@ -1,0 +1,20 @@
+{
+    "uid": "0x11f19da94167d5429da9025041000001",
+    "alias_with_namespace": "axenox.analytics.analytics",
+    "menu_home": true,
+    "menu_parent_page_selector": null,
+    "menu_index": 3,
+    "menu_visible": true,
+    "name": "Analytics",
+    "description": "",
+    "intro": "",
+    "replaces_page_selector": null,
+    "created_by_user_selector": "0x31000000000000000000000000000000",
+    "created_on": "2026-03-30 16:53:46",
+    "modified_by_user_selector": "0x31000000000000000000000000000000",
+    "modified_on": "2026-03-30 16:57:01",
+    "contents": {
+        "widget_type": "NavTiles",
+        "object_alias": "exface.Core.PAGE"
+    }
+}

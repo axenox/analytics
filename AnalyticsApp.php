@@ -1,10 +1,12 @@
 <?php
 namespace axenox\Analytics;
 
-use exface\Core\Factories\DataSourceFactory;
+use axenox\Analytics\Facades\AnalyticsFacade;
+use exface\Core\CommonLogic\AppInstallers\MySqlDatabaseInstaller;
+use exface\Core\Facades\AbstractHttpFacade\HttpFacadeInstaller;
+use exface\Core\Factories\FacadeFactory;
 use exface\Core\Interfaces\InstallerInterface;
 use exface\Core\CommonLogic\Model\App;
-use exface\Core\CommonLogic\AppInstallers\AbstractSqlDatabaseInstaller;
 
 class AnalyticsApp extends App
 {
@@ -25,6 +27,11 @@ class AnalyticsApp extends App
             ->setFoldersWithMigrations(['InitDB','Migrations'])
             ->setFoldersWithStaticSql(['Views']);
         $installer->addInstaller($schema_installer);
+
+        // Deployer facade
+        $facadeInstaller = new HttpFacadeInstaller($this->getSelector());
+        $facadeInstaller->setFacade(FacadeFactory::createFromString(AnalyticsFacade::class, $this->getWorkbench()));
+        $installer->addInstaller($facadeInstaller);
         
         return $installer;
     }
