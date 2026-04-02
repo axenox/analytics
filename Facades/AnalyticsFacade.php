@@ -110,18 +110,24 @@ class AnalyticsFacade extends AbstractHttpFacade
         $headers = $this->buildHeadersCommon();
         $route = mb_strtolower($route);
         $method = $request->getMethod();
+        $tracker = $this->getTracker($trackerUid);
+        // TODO save the expected origins in the tracker config (possibly multiple!) and read them from there
+        $headers['Access-Control-Allow-Origin'] = 'https://onelink-stage.stromnetzdc.com';
         switch (true) {
             case $route === self::ROUTE_TRACKER && $method === 'GET':
+                // TODO move JS generation to the tracker class. It depends heavily on the prototype!
                 $body = $this->buildJsTracker($trackerUid);
                 $headers['Content-Type'] = 'application/javascript';
                 return new Response(200, $headers, $body);
             case $route === self::ROUTE_EVENT && $method === 'POST':
                 try {
-                    $tracker = $this->getTracker($trackerUid);
                     $this->saveEvent($tracker, $request);
                 } catch (\Throwable $e) {
                     $this->getWorkbench()->getLogger()->logException($e);
                 }
+                return new Response(200, $headers, '');
+            // Preflight request by the Beacon API
+            case $method === 'OPTIONS':
                 return new Response(200, $headers, '');
         }
         
@@ -250,7 +256,10 @@ class AnalyticsFacade extends AbstractHttpFacade
      */
     protected function buildHeadersCommon() : array
     {
-        // TODO add more headers
-        return parent::buildHeadersCommon();
+        $headers = parent::buildHeadersCommon();
+        $headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+        $headers['Access-Control-Allow-Headers'] = 'Content-Type';
+        $headers['Access-Control-Allow-Credentials'] = 'true';
+        return $headers;
     }
 }
