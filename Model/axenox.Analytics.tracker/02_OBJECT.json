@@ -87,14 +87,14 @@
         {
             "_EXPORT_SUMMARY": "Tracker [axenox.Analytics.tracker]",
             "CREATED_ON": "2026-03-30 14:58:59",
-            "MODIFIED_ON": "2026-03-30 14:58:59",
+            "MODIFIED_ON": "2026-04-02 13:10:37",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
             "UID": "0x11f18e4d37dd6bb48e4d025041000001",
             "READABLE_FLAG": 1,
             "WRITABLE_FLAG": 1,
-            "COMMENTS": null,
-            "DOCS": null,
+            "COMMENTS": "",
+            "DOCS": "",
             "NAME": "Tracker",
             "INHERIT_DATA_SOURCE_BASE_OBJECT": 1,
             "DATA_SOURCE": "0x11f181e1f7d1d76881e1025041000001",
@@ -102,7 +102,30 @@
             "SHORT_DESCRIPTION": "",
             "PARENT_OBJECT": null,
             "DATA_ADDRESS_PROPS": null,
-            "DEFAULT_EDITOR_UXON": null,
+            "DEFAULT_EDITOR_UXON": {
+                "widget_type": "Dialog",
+                "widgets": [
+                    {
+                        "attribute_alias": "project"
+                    },
+                    {
+                        "attribute_alias": "description",
+                        "height": 2
+                    },
+                    {
+                        "attribute_alias": "name"
+                    },
+                    {
+                        "attribute_alias": "config_uxon",
+                        "widget_type": "InputUxon",
+                        "hide_caption": true,
+                        "width": "100%",
+                        "height": "max",
+                        "// TODO": "Dropdown mit allen möglichen Trackern einbauen. ",
+                        "root_prototype": "axenox/analytics/Analytics/Tracker/UI5Tracker.php"
+                    }
+                ]
+            },
             "ALIAS": "tracker",
             "DATA_ADDRESS": "tracker"
         }

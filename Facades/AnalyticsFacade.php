@@ -1,6 +1,11 @@
 <?php
 namespace axenox\Analytics\Facades;
 
+use axenox\analytics\Analytics\Tracker\UI5Tracker;
+use axenox\Analytics\Factories\TrackerFactory;
+use axenox\Analytics\Interfaces\TrackerInterface;
+use exface\Core\CommonLogic\UxonObject;
+use exface\Core\DataTypes\ComparatorDataType;
 use exface\Core\DataTypes\DateDataType;
 use exface\Core\DataTypes\JsonDataType;
 use exface\Core\Exceptions\RuntimeException;
@@ -112,7 +117,8 @@ class AnalyticsFacade extends AbstractHttpFacade
                 return new Response(200, $headers, $body);
             case $route === self::ROUTE_EVENT && $method === 'POST':
                 try {
-                    $this->saveEvent($trackerUid, $request);
+                    $tracker = $this->getTracker($trackerUid);
+                    $this->saveEvent($tracker, $request);
                 } catch (\Throwable $e) {
                     $this->getWorkbench()->getLogger()->logException($e);
                 }
@@ -122,6 +128,21 @@ class AnalyticsFacade extends AbstractHttpFacade
         $e = new HttpBadRequestError($request, 'Cannot match route ' . $route);
         $this->getWorkbench()->getLogger()->logException($e);
         return $this->createResponseFromError($e, $request);
+    }
+    
+    protected function getTracker(string $trackerUid): TrackerInterface
+    {
+        // TODD search for tracker via DataSheet, get prototype path from tracker data (need a file path
+        // column in the SQL table - see migrations tables in core for examples
+        $ds = DataSheetFactory::createFromObjectIdOrAlias($this->getWorkbench(), 'axenox.Analytics.tracker');
+        $ds->getColumns()->addMultiple(['uid', 'config_uxon']);
+        $ds->getFilters()->addConditionFromAttribute($ds->getUidColumn()->getAttribute(), $trackerUid, ComparatorDataType::EQUALS);
+        $ds->dataRead();
+        $row = $ds->getRow(0);
+        $uxon = UxonObject::fromJson($row['config_uxon'] ?? '{}');
+        $uxon->setProperty('uid', $trackerUid);
+        $tracker = TrackerFactory::createTrackerFromPrototype($this->getWorkbench(), UI5Tracker::class, $uxon);
+        return $tracker;
     }
 
     /**
@@ -144,7 +165,7 @@ class AnalyticsFacade extends AbstractHttpFacade
         return StringDataType::replacePlaceholders($tpl, $phs);
     }
     
-    protected function saveEvent(string $trackerUid, ServerRequestInterface $request)
+    protected function saveEvent(TrackerInterface $tracker, ServerRequestInterface $request)
     {
         $json = $request->getBody()->__toString();
         $trackerData = JsonDataType::decodeJson($json);
@@ -153,7 +174,7 @@ class AnalyticsFacade extends AbstractHttpFacade
             $eventSheet = DataSheetFactory::createFromObjectIdOrAlias($this->getWorkbench(), 'axenox.Analytics.event');
             $eventSheet->addRow([
                 'event_type' => $eventType,
-                'tracker' => $trackerUid,
+                'tracker' => $tracker->getUid(),
                 'timestamp' => $eventData['ts'],
                 'date' => DateDataType::cast($eventData['ts']),
                 'user_agent' => $request->getHeaderLine('User-Agent'),
@@ -166,13 +187,13 @@ class AnalyticsFacade extends AbstractHttpFacade
             switch ($eventType) {
                 case 'action':
                 case 'widget':
-                    $this->saveEventAction($eventSheet, $eventData);
+                    $this->saveEventAction($tracker, $eventSheet, $eventData);
                     break;
             }
         }
     }
     
-    protected function saveEventAction(DataSheetInterface $eventSheet, array $eventProperties)
+    protected function saveEventAction(TrackerInterface $tracker, DataSheetInterface $eventSheet, array $eventProperties)
     {
         $actionSheet = DataSheetFactory::createFromObjectIdOrAlias($this->getWorkbench(), 'axenox.Analytics.action');
         $actionSheet->addRow([
@@ -195,6 +216,11 @@ class AnalyticsFacade extends AbstractHttpFacade
             'duration_server_ms' => $eventProperties['duration_server'],
             'duration_network_ms' => $eventProperties['duration'] - $eventProperties['duration_server'],
         ]);
+        
+        if ($tracker->hasActionMapper()) {
+            $actionSheet = $tracker->getActionMapper()->map($actionSheet);
+        }
+        
         $actionSheet->dataCreate(false);
     }
     
