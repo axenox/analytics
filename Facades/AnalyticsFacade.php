@@ -111,8 +111,13 @@ class AnalyticsFacade extends AbstractHttpFacade
         $route = mb_strtolower($route);
         $method = $request->getMethod();
         $tracker = $this->getTracker($trackerUid);
-        // TODO save the expected origins in the tracker config (possibly multiple!) and read them from there
-        $headers['Access-Control-Allow-Origin'] = 'https://onelink-stage.stromnetzdc.com';
+
+        // get cors allowed origins from tracker config and add them to header
+        $expectedOrigins = $tracker->getExpectedOrigins();
+        if (is_array($expectedOrigins) && count($expectedOrigins) > 0) {
+            $headers['Access-Control-Allow-Origin'] = implode(', ', $expectedOrigins);
+        } 
+
         switch (true) {
             case $route === self::ROUTE_TRACKER && $method === 'GET':
                 // TODO move JS generation to the tracker class. It depends heavily on the prototype!

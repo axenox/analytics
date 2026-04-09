@@ -20,6 +20,7 @@ class UI5Tracker implements TrackerInterface
     private string $uid;
     
     private ?UxonObject $actionMapperUxon = null;
+    private array $expectedOrigins = [];
     
     public function __construct(WorkbenchInterface $workbench, UxonObject $uxon)
     {
@@ -61,5 +62,26 @@ class UI5Tracker implements TrackerInterface
     public function hasActionMapper() : bool
     {
         return !is_null($this->actionMapperUxon);
+    }
+
+    /**
+     * List of allowed origins that may send tracker events (e.g. the environment/s where the tracking is enabled in the config)
+     * 
+     * @uxon-property expected_origins
+     * @uxon-type array
+     * @uxon-template [""]
+     * 
+     * @param UxonObject $uxon
+     * @return $this
+     */
+    protected function setExpectedOrigins(UxonObject $uxon) : UI5Tracker
+    {
+        $this->expectedOrigins = $uxon->toArray();
+        return $this;
+    }
+
+    public function getExpectedOrigins() : array
+    {
+        return $this->expectedOrigins;
     }
 }

@@ -114,7 +114,7 @@
         }
     }
 
-    function extractDataSummary(payloadObj) {
+    function extractDataSummary(payloadObj, bIsResponse = false) {
         if (!payloadObj) return {};
 
         const data = {};
@@ -124,17 +124,21 @@
             data.object = payloadObj.data?.oId || payloadObj.data.object_alias;
         }
 
-        // Extract columns
-        data.columns = Object.keys(payloadObj)
-            .filter(k => k.includes("columns"))
-            .map(k => payloadObj[k]);
+        if (bIsResponse) {
+            // Extract columns: data[rows][0] -> keys 
+            data.columns = payloadObj.rows?.[0] ? Object.keys(payloadObj.rows[0]) : [];
+        }
+        else {
+            // Extract columns: data[columns][N][0] (for example attriute_alias, column_name)]
+            data.columns = (payloadObj.data?.columns || []).map(col => Object.values(col)[0]);
+        }
 
-        // Extract filters (simplified)
-        data.filters = Object.keys(payloadObj)
-            .filter(k => k.includes("filters") && k.includes("expression"))
-            .map(k => payloadObj[k]);
+        // Extract filters: data[filters][conditions][N][expression]
+        data.filters = (payloadObj.data?.filters?.conditions || [])
+            .map(c => c.expression)
+            .filter(Boolean);
 
-        // Sort
+        // Extract Sorters:
         if (payloadObj.sort) data.sorters = [payloadObj.sort];
 
         // Pagination
@@ -146,11 +150,12 @@
     }
 
     function sendEvent(event) {
+        // Todo sah: maybe add proper rate limiting or pooling?
         if (Math.random() > SAMPLE_RATE) return;
 
         const payload = {
             v: 1,
-            dId: exfPWA.getDeviceId(),
+            dId: getDeviceId(),
             events: [event]
         };
 
@@ -160,6 +165,91 @@
 
         navigator.sendBeacon(ENDPOINT, blob);
     }
+
+    // ---- NAV CHANGE DETECTION ----
+
+    let inFlight = 0; // currently ongoing requests
+    let navigationPage = null; // page navigated to
+    let navigationTs = null;    // timestamp on hashchange 
+    let navigationHadXhr = false; // whether any XHR fired since last hashchange
+    let navigationRouteMatchedTs = null; // set when UI5 router fires routeMatched
+    let pageSettleTimer = null;
+
+    // listen for navigation changes 
+    window.addEventListener("hashchange", function () {
+        navigationTs = performance.now();
+        navigationPage = getCurrentPageAlias();
+        navigationHadXhr = false;
+        navigationRouteMatchedTs = null;
+
+        checkPageFullyLoaded();
+    });
+
+    // check if all outgoing requests after the navigation change have finished, and send a page_loaded event.
+    // if no XHR was fired for the navigation (e.g. 'back', which restores a cached view in most cases), send a ShowWidget event as well
+    // this is done to make the average loading times more realistic, as the cached pages would otherwise not be considered in calculation
+    function checkPageFullyLoaded() {
+        if (navigationTs === null) return;
+        clearTimeout(pageSettleTimer);
+        pageSettleTimer = setTimeout(function () {
+            if (inFlight === 0 && navigationTs !== null) {
+                let duration = Math.max(0, Math.round(performance.now() - navigationTs));
+
+                if (!navigationHadXhr) {
+                    // Cached navigation: no XHR fired, send as ShowWidget action event 
+                    // here we try to calculate the duration from the navigation change event (hashchange) until the UI5 router matched the route and rendered the view (routeMatched event).
+                    // TODO sah: maybe something like afterRendering would be more realistic here?
+                    duration = navigationRouteMatchedTs !== null
+                        ? Math.max(0, Math.round(navigationRouteMatchedTs - navigationTs))
+                        : duration - 200; 
+
+                    sendEvent({
+                        ts: nowTs(),
+                        type: "widget",
+                        page: navigationPage,
+                        action: { alias: "exface.Core.ShowWidget" },
+                        duration: duration
+                    });
+                }
+
+                // always send page_loaded event
+                sendEvent({
+                    ts: nowTs(),
+                    type: "page_loaded",
+                    page: navigationPage,
+                    duration: duration
+                });
+
+                // reset navigation stats
+                navigationTs = null;
+                navigationPage = null;
+                navigationHadXhr = false;
+                navigationRouteMatchedTs = null;
+            }
+        }, 200);
+    }
+
+    // Hook into UI5 routers routeMatched event to detect navigation.
+    (function hookUI5Router() {
+        
+        // Polling until sap.ui is available (if tracker loads before)
+        if (typeof sap === 'undefined' || typeof sap.ui === 'undefined') {
+            return setTimeout(hookUI5Router, 100);
+        }
+        
+        // wait for route matched event to be fired
+        sap.ui.require(["sap/ui/core/routing/Router"], function (Router) {
+            const origFire = Router.prototype.fireRouteMatched;
+            Router.prototype.fireRouteMatched = function () {
+                if (navigationTs !== null && !navigationHadXhr) {
+                    navigationRouteMatchedTs = performance.now();
+                }
+
+                return origFire.apply(this, arguments);
+            };
+        });
+    })();
+
 
     // ---- XHR INTERCEPT ----
 
@@ -190,10 +280,17 @@
             return origSend.apply(this, arguments);
         }
 
+        inFlight++;
+        if (navigationTs !== null) navigationHadXhr = true;
         this._rum.start = performance.now();
         this._rum.body = body;
 
         this.addEventListener("loadend", () => {
+
+            // check if all is loaded
+            inFlight--;
+            checkPageFullyLoaded();
+
             try {
                 const duration = performance.now() - this._rum.start;
 
@@ -226,8 +323,13 @@
                 switch (true) {
                     case this._rum.url.includes("/viewcontroller/"):
                         type = 'widget';
-                        if (payload && ! payload.action) {
+                        if (payload && !payload.action) {
                             payload.action = 'exface.Core.ShowWidget';
+                        }
+                        // try and extract widget id from url
+                        if (payload && !payload.element) {
+                            const sWidgetId = this._rum.url.match(/\/([^/]+)\.viewcontroller\.js/);
+                            if (sWidgetId) payload.element = sWidgetId[1];
                         }
                         break;
                     case payload?.action !== undefined:
@@ -245,7 +347,7 @@
                         object: payload?.object
                     },
                     request: extractDataSummary(payload),
-                    response: extractDataSummary(responseJson),
+                    response: extractDataSummary(responseJson, true),
                     duration: duration,
                     url: this._rum.url,
                     method: this._rum.method
@@ -256,10 +358,21 @@
                     this.getResponseHeader("X-Request-ID") ||
                     this.getResponseHeader("x-request-id");
 
+                
+                // log server/sql errors 
+                if (responseJson.error) {
+                    event.response_error = {
+                        code: responseJson.error.code,
+                        title: responseJson.error.title,
+                        message: responseJson.error.message,
+                        type: responseJson.error.type,
+                        logid: responseJson.error.logid,
+                    };
+                }
 
                 // Extract X-Request-ID
                 const serverTiming =
-                    this.getResponseHeader("Servert-Timing") ||
+                    this.getResponseHeader("Server-Timing") ||
                     this.getResponseHeader("server-timing");
                 if (typeof serverTiming === "string") {
                     event.duration_server = parseFloat(serverTiming.split('=').pop())
@@ -268,6 +381,13 @@
                 sendEvent(event);
 
             } catch (e) {
+                // catch js errors and send as event
+                sendEvent({
+                    ts: nowTs(),
+                    type: "error",
+                    js_error: { message: e.message, stack: e.stack },
+                });
+
                 console.warn(e);
             }
         });

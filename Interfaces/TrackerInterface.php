@@ -12,4 +12,6 @@ interface TrackerInterface extends iCanBeConvertedToUxon
     public function getActionMapper() : ?DataSheetMapperInterface;
 
     public function hasActionMapper() : bool;
+
+    public function getExpectedOrigins() : array;
 }
