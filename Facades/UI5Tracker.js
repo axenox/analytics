@@ -114,7 +114,7 @@
         }
     }
 
-    function extractDataSummary(payloadObj) {
+    function extractDataSummary(payloadObj, bIsResponse = false) {
         if (!payloadObj) return {};
 
         const data = {};
@@ -124,17 +124,21 @@
             data.object = payloadObj.data?.oId || payloadObj.data.object_alias;
         }
 
-        // Extract columns
-        data.columns = Object.keys(payloadObj)
-            .filter(k => k.includes("columns"))
-            .map(k => payloadObj[k]);
+        if (bIsResponse) {
+            // Extract columns: data[rows][0] -> keys 
+            data.columns = payloadObj.rows?.[0] ? Object.keys(payloadObj.rows[0]) : [];
+        }
+        else {
+            // Extract columns: data[columns][N][0] (for example attriute_alias, column_name)]
+            data.columns = (payloadObj.data?.columns || []).map(col => Object.values(col)[0]);
+        }
 
-        // Extract filters (simplified)
-        data.filters = Object.keys(payloadObj)
-            .filter(k => k.includes("filters") && k.includes("expression"))
-            .map(k => payloadObj[k]);
+        // Extract filters: data[filters][conditions][N][expression]
+        data.filters = (payloadObj.data?.filters?.conditions || [])
+            .map(c => c.expression)
+            .filter(Boolean);
 
-        // Sort
+        // Extract Sorters:
         if (payloadObj.sort) data.sorters = [payloadObj.sort];
 
         // Pagination
@@ -146,11 +150,12 @@
     }
 
     function sendEvent(event) {
+        // Todo sah: maybe add proper rate limiting or pooling?
         if (Math.random() > SAMPLE_RATE) return;
 
         const payload = {
             v: 1,
-            dId: exfPWA.getDeviceId(),
+            dId: getDeviceId(),
             events: [event]
         };
 
@@ -226,8 +231,13 @@
                 switch (true) {
                     case this._rum.url.includes("/viewcontroller/"):
                         type = 'widget';
-                        if (payload && ! payload.action) {
+                        if (payload && !payload.action) {
                             payload.action = 'exface.Core.ShowWidget';
+                        }
+                        // try and extract widget id from url
+                        if (payload && !payload.element) {
+                            const sWidgetId = this._rum.url.match(/\/([^/]+)\.viewcontroller\.js/);
+                            if (sWidgetId) payload.element = sWidgetId[1];
                         }
                         break;
                     case payload?.action !== undefined:
@@ -245,7 +255,7 @@
                         object: payload?.object
                     },
                     request: extractDataSummary(payload),
-                    response: extractDataSummary(responseJson),
+                    response: extractDataSummary(responseJson, true),
                     duration: duration,
                     url: this._rum.url,
                     method: this._rum.method
@@ -256,10 +266,21 @@
                     this.getResponseHeader("X-Request-ID") ||
                     this.getResponseHeader("x-request-id");
 
+                
+                // log server/sql errors 
+                if (responseJson.error) {
+                    event.response_error = {
+                        code: responseJson.error.code,
+                        title: responseJson.error.title,
+                        message: responseJson.error.message,
+                        type: responseJson.error.type,
+                        logid: responseJson.error.logid,
+                    };
+                }
 
                 // Extract X-Request-ID
                 const serverTiming =
-                    this.getResponseHeader("Servert-Timing") ||
+                    this.getResponseHeader("Server-Timing") ||
                     this.getResponseHeader("server-timing");
                 if (typeof serverTiming === "string") {
                     event.duration_server = parseFloat(serverTiming.split('=').pop())
