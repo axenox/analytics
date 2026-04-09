@@ -289,6 +289,13 @@
                 sendEvent(event);
 
             } catch (e) {
+                // catch js errors and send as event
+                sendEvent({
+                    ts: nowTs(),
+                    type: "error",
+                    js_error: { message: e.message, stack: e.stack },
+                });
+
                 console.warn(e);
             }
         });
