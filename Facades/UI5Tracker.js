@@ -166,6 +166,91 @@
         navigator.sendBeacon(ENDPOINT, blob);
     }
 
+    // ---- NAV CHANGE DETECTION ----
+
+    let inFlight = 0; // currently ongoing requests
+    let navigationPage = null; // page navigated to
+    let navigationTs = null;    // timestamp on hashchange 
+    let navigationHadXhr = false; // whether any XHR fired since last hashchange
+    let navigationRouteMatchedTs = null; // set when UI5 router fires routeMatched
+    let pageSettleTimer = null;
+
+    // listen for navigation changes 
+    window.addEventListener("hashchange", function () {
+        navigationTs = performance.now();
+        navigationPage = getCurrentPageAlias();
+        navigationHadXhr = false;
+        navigationRouteMatchedTs = null;
+
+        checkPageFullyLoaded();
+    });
+
+    // check if all outgoing requests after the navigation change have finished, and send a page_loaded event.
+    // if no XHR was fired for the navigation (e.g. 'back', which restores a cached view in most cases), send a ShowWidget event as well
+    // this is done to make the average loading times more realistic, as the cached pages would otherwise not be considered in calculation
+    function checkPageFullyLoaded() {
+        if (navigationTs === null) return;
+        clearTimeout(pageSettleTimer);
+        pageSettleTimer = setTimeout(function () {
+            if (inFlight === 0 && navigationTs !== null) {
+                let duration = Math.max(0, Math.round(performance.now() - navigationTs));
+
+                if (!navigationHadXhr) {
+                    // Cached navigation: no XHR fired, send as ShowWidget action event 
+                    // here we try to calculate the duration from the navigation change event (hashchange) until the UI5 router matched the route and rendered the view (routeMatched event).
+                    // TODO sah: maybe something like afterRendering would be more realistic here?
+                    duration = navigationRouteMatchedTs !== null
+                        ? Math.max(0, Math.round(navigationRouteMatchedTs - navigationTs))
+                        : duration - 200; 
+
+                    sendEvent({
+                        ts: nowTs(),
+                        type: "widget",
+                        page: navigationPage,
+                        action: { alias: "exface.Core.ShowWidget" },
+                        duration: duration
+                    });
+                }
+
+                // always send page_loaded event
+                sendEvent({
+                    ts: nowTs(),
+                    type: "page_loaded",
+                    page: navigationPage,
+                    duration: duration
+                });
+
+                // reset navigation stats
+                navigationTs = null;
+                navigationPage = null;
+                navigationHadXhr = false;
+                navigationRouteMatchedTs = null;
+            }
+        }, 200);
+    }
+
+    // Hook into UI5 routers routeMatched event to detect navigation.
+    (function hookUI5Router() {
+        
+        // Polling until sap.ui is available (if tracker loads before)
+        if (typeof sap === 'undefined' || typeof sap.ui === 'undefined') {
+            return setTimeout(hookUI5Router, 100);
+        }
+        
+        // wait for route matched event to be fired
+        sap.ui.require(["sap/ui/core/routing/Router"], function (Router) {
+            const origFire = Router.prototype.fireRouteMatched;
+            Router.prototype.fireRouteMatched = function () {
+                if (navigationTs !== null && !navigationHadXhr) {
+                    navigationRouteMatchedTs = performance.now();
+                }
+
+                return origFire.apply(this, arguments);
+            };
+        });
+    })();
+
+
     // ---- XHR INTERCEPT ----
 
     const origOpen = XMLHttpRequest.prototype.open;
@@ -195,10 +280,17 @@
             return origSend.apply(this, arguments);
         }
 
+        inFlight++;
+        if (navigationTs !== null) navigationHadXhr = true;
         this._rum.start = performance.now();
         this._rum.body = body;
 
         this.addEventListener("loadend", () => {
+
+            // check if all is loaded
+            inFlight--;
+            checkPageFullyLoaded();
+
             try {
                 const duration = performance.now() - this._rum.start;
 
