@@ -10,14 +10,20 @@
     "replaces_page_selector": null,
     "created_by_user_selector": "0x31000000000000000000000000000000",
     "created_on": "2026-03-31 11:12:53",
-    "modified_by_user_selector": "0x31000000000000000000000000000000",
-    "modified_on": "2026-04-01 08:45:14",
+    "modified_by_user_selector": "0x11e8fe1c902c8ebea23ee4b318306b9a",
+    "modified_on": "2026-04-10 13:14:27",
     "contents": {
         "widget_type": "DataTable",
         "object_alias": "axenox.Analytics.event",
         "filters": [
             {
                 "attribute_alias": "tracker"
+            },
+            {
+                "attribute_alias": "event_type",
+                "input_widget": {
+                    "widget_type": "InputComboTable"
+                }
             },
             {
                 "attribute_alias": "properties_json",
