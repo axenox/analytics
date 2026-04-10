@@ -87,14 +87,14 @@
         {
             "_EXPORT_SUMMARY": "Action [axenox.Analytics.action]",
             "CREATED_ON": "2026-03-30 14:58:59",
-            "MODIFIED_ON": "2026-03-30 14:58:59",
+            "MODIFIED_ON": "2026-04-10 13:12:58",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
-            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
+            "MODIFIED_BY_USER": "0x11e8fe1c902c8ebea23ee4b318306b9a",
             "UID": "0x11f1b48c37dd44a4b48c025041000001",
             "READABLE_FLAG": 1,
             "WRITABLE_FLAG": 1,
-            "COMMENTS": null,
-            "DOCS": null,
+            "COMMENTS": "",
+            "DOCS": "",
             "NAME": "Action",
             "INHERIT_DATA_SOURCE_BASE_OBJECT": 1,
             "DATA_SOURCE": "0x11f181e1f7d1d76881e1025041000001",
@@ -102,7 +102,111 @@
             "SHORT_DESCRIPTION": "",
             "PARENT_OBJECT": null,
             "DATA_ADDRESS_PROPS": null,
-            "DEFAULT_EDITOR_UXON": null,
+            "DEFAULT_EDITOR_UXON": {
+                "widget_type": "Dialog",
+                "object_alias": "axenox.Analytics.action",
+                "width": 3,
+                "columns_in_grid": 1,
+                "height": "85%",
+                "maximized": false,
+                "widgets": [
+                    {
+                        "widget_type": "WidgetGroup",
+                        "columns_in_grid": 2,
+                        "widgets": [
+                            {
+                                "widget_type": "WidgetGroup",
+                                "caption": "General Information",
+                                "widgets": [
+                                    {
+                                        "attribute_alias": "tracker"
+                                    },
+                                    {
+                                        "attribute_alias": "page_alias"
+                                    },
+                                    {
+                                        "attribute_alias": "widget_id"
+                                    },
+                                    {
+                                        "attribute_alias": "action_alias"
+                                    },
+                                    {
+                                        "attribute_alias": "action_object_alias"
+                                    },
+                                    {
+                                        "attribute_alias": "event"
+                                    }
+                                ]
+                            },
+                            {
+                                "widget_type": "WidgetGroup",
+                                "caption": "Timing",
+                                "widgets": [
+                                    {
+                                        "attribute_alias": "created_on"
+                                    },
+                                    {
+                                        "attribute_alias": "duration_ms"
+                                    },
+                                    {
+                                        "attribute_alias": "duration_network_ms"
+                                    },
+                                    {
+                                        "attribute_alias": "duration_server_ms"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "widget_type": "WidgetGroup",
+                        "columns_in_grid": 2,
+                        "widgets": [
+                            {
+                                "widget_type": "WidgetGroup",
+                                "caption": "Request Data",
+                                "widgets": [
+                                    {
+                                        "attribute_alias": "request_data_object_alias"
+                                    },
+                                    {
+                                        "attribute_alias": "request_data_row_count"
+                                    },
+                                    {
+                                        "attribute_alias": "request_data_columns"
+                                    },
+                                    {
+                                        "attribute_alias": "request_data_filters"
+                                    },
+                                    {
+                                        "attribute_alias": "request_data_sorters"
+                                    },
+                                    {
+                                        "attribute_alias": "request_data_aggregators"
+                                    }
+                                ]
+                            },
+                            {
+                                "widget_type": "WidgetGroup",
+                                "caption": "Response Data",
+                                "widgets": [
+                                    {
+                                        "attribute_alias": "response_data_row_count"
+                                    },
+                                    {
+                                        "attribute_alias": "response_data_columns"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "buttons": [
+                    {
+                        "action_alias": ""
+                    }
+                ]
+            },
             "ALIAS": "action",
             "DATA_ADDRESS": "action"
         }
