@@ -139,7 +139,7 @@
             .filter(Boolean);
 
         // Extract Sorters:
-        if (payloadObj.sort) data.sorters = [payloadObj.sort];
+        if (payloadObj.sort) data.sorters = payloadObj.sort.split(',').map(s => s.trim()).filter(Boolean);
 
         // Pagination
         data.limit = payloadObj.length ? parseInt(payloadObj.length, 10) : undefined;
