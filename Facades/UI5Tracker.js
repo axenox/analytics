@@ -103,8 +103,8 @@
                 let afterHash = hash.substring(2); // Remove #/
                 let pageMatch = afterHash.split('/')[0];
 
-                // if there are more than 3 dots, it contiasn the widget id, so remove the last part to get the page alias
-                if (pageMatch && (pageMatch.match(/\./g) || []).length > 2) {
+                // if there are 3 dots, it contains the widget id, so remove the last part to get the page alias
+                if (pageMatch && (pageMatch.match(/\./g) || []).length === 3) {
                     pageMatch = pageMatch.substring(0, pageMatch.lastIndexOf('.'));
                 }
 
