@@ -100,11 +100,17 @@
             // Check if we have a hash with #/
             if (hash && hash.startsWith('#/')) {
                 // Extract part after #/ until next / or end
-                const afterHash = hash.substring(2); // Remove #/
-                const pageMatch = afterHash.split('/')[0];
+                let afterHash = hash.substring(2); // Remove #/
+                let pageMatch = afterHash.split('/')[0];
+
+                // if there are more than 3 dots, it contiasn the widget id, so remove the last part to get the page alias
+                if (pageMatch && (pageMatch.match(/\./g) || []).length > 2) {
+                    pageMatch = pageMatch.substring(0, pageMatch.lastIndexOf('.'));
+                }
+
                 if (pageMatch) return pageMatch;
             }
-            
+
             // Fallback: extract filename without extension
             const pathname = url.pathname;
             const filename = pathname.split('/').pop(); // Get last part
