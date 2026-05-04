@@ -10,59 +10,133 @@
     "replaces_page_selector": null,
     "created_by_user_selector": "0x31000000000000000000000000000000",
     "created_on": "2026-03-31 11:12:53",
-    "modified_by_user_selector": "0x11e8fe1c902c8ebea23ee4b318306b9a",
-    "modified_on": "2026-04-10 13:14:27",
+    "modified_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
+    "modified_on": "2026-05-01 11:24:13",
     "contents": {
-        "widget_type": "DataTable",
+        "widget_type": "SplitHorizontal",
         "object_alias": "axenox.Analytics.event",
-        "filters": [
+        "panels": [
             {
-                "attribute_alias": "tracker"
+                "caption": "Event log",
+                "width": "70%",
+                "widgets": [
+                    {
+                        "widget_type": "DataTable",
+                        "object_alias": "axenox.Analytics.event",
+                        "filters": [
+                            {
+                                "attribute_alias": "tracker"
+                            },
+                            {
+                                "attribute_alias": "event_type",
+                                "input_widget": {
+                                    "widget_type": "InputComboTable"
+                                }
+                            },
+                            {
+                                "attribute_alias": "properties_json",
+                                "input_widget": {
+                                    "widget_type": "Input"
+                                }
+                            }
+                        ],
+                        "columns": [
+                            {
+                                "attribute_alias": "timestamp"
+                            },
+                            {
+                                "attribute_alias": "tracker__LABEL"
+                            },
+                            {
+                                "attribute_alias": "event_type"
+                            },
+                            {
+                                "attribute_alias": "source_id"
+                            },
+                            {
+                                "attribute_alias": "request_id"
+                            }
+                        ],
+                        "sorters": [
+                            {
+                                "attribute_alias": "timestamp",
+                                "direction": "desc"
+                            }
+                        ],
+                        "buttons": [
+                            {
+                                "action_alias": "exface.Core.ShowObjectEditDialog",
+                                "bind_to_double_click": true
+                            },
+                            {
+                                "action_alias": "exface.Core.DeleteObject",
+                                "visibility": "optional"
+                            }
+                        ]
+                    }
+                ]
             },
             {
-                "attribute_alias": "event_type",
-                "input_widget": {
-                    "widget_type": "InputComboTable"
-                }
-            },
-            {
-                "attribute_alias": "properties_json",
-                "input_widget": {
-                    "widget_type": "Input"
-                }
-            }
-        ],
-        "columns": [
-            {
-                "attribute_alias": "timestamp"
-            },
-            {
-                "attribute_alias": "tracker__LABEL"
-            },
-            {
-                "attribute_alias": "event_type"
-            },
-            {
-                "attribute_alias": "source_id"
-            },
-            {
-                "attribute_alias": "request_id"
-            }
-        ],
-        "sorters": [
-            {
-                "attribute_alias": "timestamp",
-                "direction": "desc"
-            }
-        ],
-        "buttons": [
-            {
-                "action_alias": "exface.Core.ShowObjectEditDialog",
-                "bind_to_double_click": true
-            },
-            {
-                "action_alias": "exface.Core.DeleteObject",
-                "visibility": "optional"
+                "caption": "Last 7 days",
+                "widgets": [
+                    {
+                        "object_alias": "axenox.Analytics.event",
+                        "widget_type": "SplitVertical",
+                        "panels": [
+                            {
+                                "height": "33%",
+                                "widgets": [
+                                    {
+                                        "widget_type": "Chart",
+                                        "object_alias": "axenox.Analytics.event",
+                                        "caption": "Events per tracker",
+                                        "data": {
+                                            "aggregate_by_attribute_alias": [
+                                                "tracker",
+                                                "date"
+                                            ],
+                                            "filters": [
+                                                {
+                                                    "attribute_alias": "date",
+                                                    "value": -7,
+                                                    "comparator": ">",
+                                                    "hidden": true
+                                                }
+                                            ],
+                                            "sorters": [
+                                                {
+                                                    "attribute_alias": "date",
+                                                    "direction": "asc"
+                                                }
+                                            ]
+                                        },
+                                        "series": [
+                                            {
+                                                "type": "column",
+                                                "x_attribute_alias": "date",
+                                                "y_attribute_alias": "uid:COUNT",
+                                                "split_by_attribute_alias": "tracker__LABEL"
+                                            }
+                                        ],
+                                        "axis_y": [
+                                            {
+                                                "attribute_alias": "uid:COUNT",
+                                                "hide_caption": true
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "caption": "Coming soon..."
+                            },
+                            {
+                                "caption": "Coming soon...",
+                                "height": "33%"
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }
