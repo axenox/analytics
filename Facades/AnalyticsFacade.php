@@ -1,13 +1,11 @@
 <?php
 namespace axenox\Analytics\Facades;
 
-use axenox\analytics\Analytics\Tracker\UI5Tracker;
+use axenox\Analytics\Analytics\Tracker\UI5Tracker;
 use axenox\Analytics\Factories\TrackerFactory;
 use axenox\Analytics\Interfaces\TrackerInterface;
 use exface\Core\CommonLogic\UxonObject;
 use exface\Core\DataTypes\ComparatorDataType;
-use exface\Core\DataTypes\DateDataType;
-use exface\Core\DataTypes\JsonDataType;
 use exface\Core\Exceptions\RuntimeException;
 use exface\Core\Facades\AbstractHttpFacade\AbstractHttpFacade;
 use exface\Core\DataTypes\StringDataType;
@@ -16,7 +14,6 @@ use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Psr7\Response;
 use exface\Core\Factories\DataSheetFactory;
 use exface\Core\Exceptions\Facades\HttpBadRequestError;
-use exface\Core\Interfaces\DataSheets\DataSheetInterface;
 
 /**
  * Web API for RUM (real user monitoring) - handles analytics trackers calls
@@ -126,7 +123,7 @@ class AnalyticsFacade extends AbstractHttpFacade
                 return new Response(200, $headers, $body);
             case $route === self::ROUTE_EVENT && $method === 'POST':
                 try {
-                    $this->saveEvent($tracker, $request);
+                    $tracker->saveRequest($request);
                 } catch (\Throwable $e) {
                     $this->getWorkbench()->getLogger()->logException($e);
                 }
@@ -174,65 +171,6 @@ class AnalyticsFacade extends AbstractHttpFacade
             '~url' => $this->buildUrlToFacade(false) . '/' . $trackerUid . '/event',
         ];
         return StringDataType::replacePlaceholders($tpl, $phs);
-    }
-    
-    protected function saveEvent(TrackerInterface $tracker, ServerRequestInterface $request)
-    {
-        $json = $request->getBody()->__toString();
-        $trackerData = JsonDataType::decodeJson($json);
-        foreach ($trackerData['events'] as $eventData) {
-            $eventType = mb_strtolower($eventData['type']);
-            $eventSheet = DataSheetFactory::createFromObjectIdOrAlias($this->getWorkbench(), 'axenox.Analytics.event');
-            $eventSheet->addRow([
-                'event_type' => $eventType,
-                'tracker' => $tracker->getUid(),
-                'timestamp' => $eventData['ts'],
-                'date' => DateDataType::cast($eventData['ts']),
-                'user_agent' => $request->getHeaderLine('User-Agent'),
-                'request_id' => $eventData['xrId'] ?? null,
-                'source_id' => $trackerData['dId'] ?? null,
-                'properties_json' => $json
-            ]);
-            $eventSheet->dataCreate(false);
-
-            switch ($eventType) {
-                case 'action':
-                case 'widget':
-                    $this->saveEventAction($tracker, $eventSheet, $eventData);
-                    break;
-            }
-        }
-    }
-    
-    protected function saveEventAction(TrackerInterface $tracker, DataSheetInterface $eventSheet, array $eventProperties)
-    {
-        $actionSheet = DataSheetFactory::createFromObjectIdOrAlias($this->getWorkbench(), 'axenox.Analytics.action');
-        $actionSheet->addRow([
-            'tracker' => $eventSheet->getCellValue('tracker', 0),
-            'event' => $eventSheet->getUidColumn()->getValue(0),
-            'action_alias' => $eventProperties['action']['alias'],
-            'action_object_alias' => $eventProperties['action']['object'],
-            'page_alias' => $eventProperties['page'],
-            'widget_id' => $eventProperties['widget'],
-            'user' => $eventProperties['user'],
-            'request_data_object_alias' => $eventProperties['request']['object'],
-            'request_data_columns' => $eventProperties['request']['columns'] ? JsonDataType::encodeJson($eventProperties['request']['columns']) : null,
-            'request_data_filters' => $eventProperties['request']['filters'] ? JsonDataType::encodeJson($eventProperties['request']['filters']) : null,
-            'request_data_sorters' => $eventProperties['request']['sorters'] ? JsonDataType::encodeJson($eventProperties['request']['sorters']) : null,
-            'request_data_aggregators' => $eventProperties['request']['aggregators'] ? JsonDataType::encodeJson($eventProperties['request']['aggregators']) : null,
-            'request_data_row_count' => $eventProperties['request']['rows'],
-            'response_data_columns' => $eventProperties['response']['columns'] ? JsonDataType::encodeJson($eventProperties['response']['columns']) : null,
-            'response_data_row_count' => $eventProperties['response']['rows'],
-            'duration_ms' => $eventProperties['duration'],
-            'duration_server_ms' => $eventProperties['duration_server'],
-            'duration_network_ms' => $eventProperties['duration'] - $eventProperties['duration_server'],
-        ]);
-        
-        if ($tracker->hasActionMapper()) {
-            $actionSheet = $tracker->getActionMapper()->map($actionSheet);
-        }
-        
-        $actionSheet->dataCreate(false);
     }
     
     /**
