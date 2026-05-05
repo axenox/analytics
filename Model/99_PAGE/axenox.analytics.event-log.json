@@ -11,7 +11,7 @@
     "created_by_user_selector": "0x31000000000000000000000000000000",
     "created_on": "2026-03-31 11:12:53",
     "modified_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
-    "modified_on": "2026-05-01 11:24:13",
+    "modified_on": "2026-05-05 12:35:16",
     "contents": {
         "widget_type": "SplitHorizontal",
         "object_alias": "axenox.Analytics.event",
@@ -23,9 +23,11 @@
                     {
                         "widget_type": "DataTable",
                         "object_alias": "axenox.Analytics.event",
+                        "id": "events_table",
                         "filters": [
                             {
-                                "attribute_alias": "tracker"
+                                "attribute_alias": "tracker",
+                                "id": "fitler_tracker"
                             },
                             {
                                 "attribute_alias": "event_type",
@@ -91,6 +93,7 @@
                                         "object_alias": "axenox.Analytics.event",
                                         "caption": "Events per tracker",
                                         "data": {
+                                            "refresh_with_widget": "events_table",
                                             "aggregate_by_attribute_alias": [
                                                 "tracker",
                                                 "date"
@@ -100,6 +103,12 @@
                                                     "attribute_alias": "date",
                                                     "value": -7,
                                                     "comparator": ">",
+                                                    "hidden": true
+                                                },
+                                                {
+                                                    "attribute_alias": "tracker",
+                                                    "value": "=fitler_tracker!uid",
+                                                    "apply_on_change": true,
                                                     "hidden": true
                                                 }
                                             ],
@@ -128,7 +137,54 @@
                                 ]
                             },
                             {
-                                "caption": "Coming soon..."
+                                "widgets": [
+                                    {
+                                        "widget_type": "Chart",
+                                        "object_alias": "axenox.Analytics.event",
+                                        "caption": "Parallel sessions per hour",
+                                        "data": {
+                                            "refresh_with_widget": "events_table",
+                                            "aggregate_by_attribute_alias": [
+                                                "date",
+                                                "date_hour"
+                                            ],
+                                            "filters": [
+                                                {
+                                                    "attribute_alias": "date",
+                                                    "value": -7,
+                                                    "comparator": ">",
+                                                    "hidden": true
+                                                },
+                                                {
+                                                    "attribute_alias": "tracker",
+                                                    "value": "=fitler_tracker!uid",
+                                                    "apply_on_change": true,
+                                                    "hidden": true
+                                                }
+                                            ],
+                                            "sorters": [
+                                                {
+                                                    "attribute_alias": "date_hour",
+                                                    "direction": "asc"
+                                                }
+                                            ]
+                                        },
+                                        "series": [
+                                            {
+                                                "type": "column",
+                                                "x_attribute_alias": "date_hour",
+                                                "y_attribute_alias": "source_id:COUNT_DISTINCT",
+                                                "caption": "Sessions"
+                                            }
+                                        ],
+                                        "axis_y": [
+                                            {
+                                                "attribute_alias": "source_id:COUNT_DISTINCT",
+                                                "hide_caption": true
+                                            }
+                                        ]
+                                    }
+                                ]
                             },
                             {
                                 "caption": "Coming soon...",
