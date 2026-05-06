@@ -11,7 +11,7 @@
     "created_by_user_selector": "0x31000000000000000000000000000000",
     "created_on": "2026-03-31 11:12:53",
     "modified_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
-    "modified_on": "2026-05-05 12:35:16",
+    "modified_on": "2026-05-06 11:10:21",
     "contents": {
         "widget_type": "SplitHorizontal",
         "object_alias": "axenox.Analytics.event",
@@ -108,7 +108,6 @@
                                                 {
                                                     "attribute_alias": "tracker",
                                                     "value": "=fitler_tracker!uid",
-                                                    "apply_on_change": true,
                                                     "hidden": true
                                                 }
                                             ],
@@ -131,6 +130,12 @@
                                             {
                                                 "attribute_alias": "uid:COUNT",
                                                 "hide_caption": true
+                                            }
+                                        ],
+                                        "axis_x": [
+                                            {
+                                                "attribute_alias": "date",
+                                                "zoomable": false
                                             }
                                         ]
                                     }
@@ -158,7 +163,6 @@
                                                 {
                                                     "attribute_alias": "tracker",
                                                     "value": "=fitler_tracker!uid",
-                                                    "apply_on_change": true,
                                                     "hidden": true
                                                 }
                                             ],
@@ -187,8 +191,40 @@
                                 ]
                             },
                             {
-                                "caption": "Coming soon...",
-                                "height": "33%"
+                                "height": "33%",
+                                "widgets": [
+                                    {
+                                        "caption": "Event types",
+                                        "widget_type": "Chart",
+                                        "object_alias": "axenox.Analytics.event",
+                                        "data": {
+                                            "aggregate_by_attribute_alias": [
+                                                "event_type"
+                                            ],
+                                            "refresh_with_widget": "events_table",
+                                            "filters": [
+                                                {
+                                                    "attribute_alias": "date",
+                                                    "value": -7,
+                                                    "comparator": ">",
+                                                    "hidden": true
+                                                },
+                                                {
+                                                    "attribute_alias": "tracker",
+                                                    "value": "=fitler_tracker!uid",
+                                                    "hidden": true
+                                                }
+                                            ]
+                                        },
+                                        "series": [
+                                            {
+                                                "type": "pie",
+                                                "value_attribute_alias": "uid:COUNT",
+                                                "text_attribute_alias": "event_type"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     }

@@ -11,7 +11,7 @@
     "created_by_user_selector": "0x31000000000000000000000000000000",
     "created_on": "2026-03-31 18:17:16",
     "modified_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
-    "modified_on": "2026-05-06 10:27:06",
+    "modified_on": "2026-05-06 11:48:32",
     "contents": {
         "widget_type": "DataTable",
         "object_alias": "axenox.Analytics.action",
@@ -44,7 +44,7 @@
         ],
         "columns": [
             {
-                "attribute_alias": "created_on"
+                "attribute_alias": "event__timestamp"
             },
             {
                 "attribute_alias": "action_alias"
@@ -60,6 +60,9 @@
             },
             {
                 "attribute_alias": "duration_server_ms"
+            },
+            {
+                "attribute_alias": "duration_network_ms"
             },
             {
                 "attribute_alias": "request_data_row_count"

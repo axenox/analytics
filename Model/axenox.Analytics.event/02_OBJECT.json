@@ -87,9 +87,9 @@
         {
             "_EXPORT_SUMMARY": "Event [axenox.Analytics.event]",
             "CREATED_ON": "2026-03-30 14:58:59",
-            "MODIFIED_ON": "2026-03-31 13:14:03",
+            "MODIFIED_ON": "2026-05-06 11:04:25",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
-            "MODIFIED_BY_USER": "0x31000000000000000000000000000000",
+            "MODIFIED_BY_USER": "0x11eea89602c1c3dca896005056be9fa0",
             "UID": "0x11f1a64737dda2d2a647025041000001",
             "READABLE_FLAG": 1,
             "WRITABLE_FLAG": 1,
@@ -104,6 +104,24 @@
             "DATA_ADDRESS_PROPS": null,
             "DEFAULT_EDITOR_UXON": {
                 "widget_type": "Dialog",
+                "header": {
+                    "hide_caption": true,
+                    "widgets": [
+                        {
+                            "attribute_alias": "event_type"
+                        },
+                        {
+                            "attribute_alias": "tracker__LABEL"
+                        },
+                        {
+                            "attribute_alias": "timestamp"
+                        },
+                        {
+                            "attribute_alias": "user_agent",
+                            "width": 2
+                        }
+                    ]
+                },
                 "widgets": [
                     {
                         "attribute_alias": "properties_json",
