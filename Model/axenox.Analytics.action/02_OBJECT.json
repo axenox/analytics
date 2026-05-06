@@ -87,7 +87,7 @@
         {
             "_EXPORT_SUMMARY": "Action [axenox.Analytics.action]",
             "CREATED_ON": "2026-03-30 14:58:59",
-            "MODIFIED_ON": "2026-05-06 12:07:39",
+            "MODIFIED_ON": "2026-05-06 12:23:46",
             "CREATED_BY_USER": "0x31000000000000000000000000000000",
             "MODIFIED_BY_USER": "0x11eea89602c1c3dca896005056be9fa0",
             "UID": "0x11f1b48c37dd44a4b48c025041000001",
@@ -132,6 +132,10 @@
                                     },
                                     {
                                         "attribute_alias": "event__tracker__origin",
+                                        "widget_type": "InputHidden"
+                                    },
+                                    {
+                                        "attribute_alias": "event__request_id",
                                         "widget_type": "InputHidden"
                                     }
                                 ]
@@ -243,7 +247,7 @@
                             "alias": "exface.core.GoToUrl",
                             "urlencode_placeholders": false,
                             "open_in_new_window": true,
-                            "url": "[#event__tracker__origin#]/exface.core.monitor.html"
+                            "url": "[#event__tracker__origin#]/exface.core.monitor.html?&prefill={\"meta_object_id\":\"0x11eb90f04b00a9be90f08c04ba002958\",\"rows\":%20[{\"REQUEST_ID\":\"[#event__request_id#]\"}]}"
                         }
                     }
                 ]

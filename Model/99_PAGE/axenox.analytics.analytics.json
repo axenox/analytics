@@ -11,10 +11,228 @@
     "replaces_page_selector": null,
     "created_by_user_selector": "0x31000000000000000000000000000000",
     "created_on": "2026-03-30 16:53:46",
-    "modified_by_user_selector": "0x31000000000000000000000000000000",
-    "modified_on": "2026-03-30 16:57:01",
+    "modified_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
+    "modified_on": "2026-05-06 12:53:19",
     "contents": {
-        "widget_type": "NavTiles",
-        "object_alias": "exface.Core.PAGE"
+        "widget_type": "Dashboard",
+        "object_alias": "axenox.Analytics.event",
+        "widgets": [
+            {
+                "widget_type": "NavTiles",
+                "width": 3,
+                "height": "120px"
+            },
+            {
+                "widget_type": "Chart",
+                "object_alias": "axenox.Analytics.event",
+                "caption": "Events per tracker",
+                "width": 1,
+                "data": {
+                    "aggregate_by_attribute_alias": [
+                        "tracker",
+                        "date"
+                    ],
+                    "filters": [
+                        {
+                            "attribute_alias": "date",
+                            "value": -7,
+                            "comparator": ">",
+                            "hidden": true
+                        }
+                    ],
+                    "sorters": [
+                        {
+                            "attribute_alias": "date",
+                            "direction": "asc"
+                        }
+                    ]
+                },
+                "series": [
+                    {
+                        "type": "column",
+                        "x_attribute_alias": "date",
+                        "y_attribute_alias": "uid:COUNT",
+                        "split_by_attribute_alias": "tracker__LABEL"
+                    }
+                ],
+                "axis_y": [
+                    {
+                        "attribute_alias": "uid:COUNT",
+                        "hide_caption": true
+                    }
+                ],
+                "axis_x": [
+                    {
+                        "attribute_alias": "date",
+                        "zoomable": false
+                    }
+                ]
+            },
+            {
+                "widget_type": "Chart",
+                "object_alias": "axenox.Analytics.event",
+                "caption": "Parallel sessions per hour",
+                "width": 1,
+                "data": {
+                    "aggregate_by_attribute_alias": [
+                        "date",
+                        "date_hour"
+                    ],
+                    "filters": [
+                        {
+                            "attribute_alias": "date",
+                            "value": -7,
+                            "comparator": ">",
+                            "hidden": true
+                        }
+                    ],
+                    "sorters": [
+                        {
+                            "attribute_alias": "date_hour",
+                            "direction": "asc"
+                        }
+                    ]
+                },
+                "series": [
+                    {
+                        "type": "column",
+                        "x_attribute_alias": "date_hour",
+                        "y_attribute_alias": "source_id:COUNT_DISTINCT",
+                        "caption": "Sessions"
+                    }
+                ],
+                "axis_y": [
+                    {
+                        "attribute_alias": "source_id:COUNT_DISTINCT",
+                        "hide_caption": true
+                    }
+                ]
+            },
+            {
+                "caption": "Event types",
+                "widget_type": "Chart",
+                "object_alias": "axenox.Analytics.event",
+                "width": 1,
+                "data": {
+                    "aggregate_by_attribute_alias": [
+                        "event_type"
+                    ],
+                    "filters": [
+                        {
+                            "attribute_alias": "date",
+                            "value": -7,
+                            "comparator": ">",
+                            "hidden": true
+                        }
+                    ]
+                },
+                "series": [
+                    {
+                        "type": "pie",
+                        "value_attribute_alias": "uid:COUNT",
+                        "text_attribute_alias": "event_type"
+                    }
+                ]
+            },
+            {
+                "caption": "Top 20 long-runners today (> 30s at least once)",
+                "widget_type": "DataTable",
+                "object_alias": "axenox.Analytics.action",
+                "width": 2,
+                "paginator": {
+                    "count_all_rows": false,
+                    "page_size": 20
+                },
+                "aggregate_by_attribute_alias": [
+                    "page_alias",
+                    "action_alias"
+                ],
+                "filters": [
+                    {
+                        "attribute_alias": "event__date",
+                        "value": 0,
+                        "comparator": "==",
+                        "hidden": true
+                    },
+                    {
+                        "attribute_alias": "duration_ms",
+                        "value": 30000,
+                        "comparator": ">",
+                        "hidden": true
+                    }
+                ],
+                "columns": [
+                    {
+                        "attribute_alias": "page_alias"
+                    },
+                    {
+                        "attribute_alias": "action_alias"
+                    },
+                    {
+                        "attribute_alias": "duration_ms:AVG",
+                        "caption": "Total [ms]"
+                    },
+                    {
+                        "attribute_alias": "duration_server_ms:AVG",
+                        "caption": "Server [ms]"
+                    },
+                    {
+                        "attribute_alias": "duration_network_ms:AVG",
+                        "caption": "Network [ms]"
+                    },
+                    {
+                        "attribute_alias": "uid:COUNT",
+                        "caption": "Usage"
+                    }
+                ],
+                "sorters": [
+                    {
+                        "attribute_alias": "duration_ms:AVG",
+                        "direction": "desc"
+                    }
+                ]
+            },
+            {
+                "caption": "Top 20 pages today",
+                "widget_type": "DataTable",
+                "object_alias": "axenox.Analytics.action",
+                "width": 1,
+                "paginator": {
+                    "count_all_rows": false,
+                    "page_size": 20
+                },
+                "aggregate_by_attribute_alias": [
+                    "page_alias",
+                    "tracker"
+                ],
+                "filters": [
+                    {
+                        "attribute_alias": "event__date",
+                        "value": 0,
+                        "comparator": "==",
+                        "hidden": true
+                    }
+                ],
+                "columns": [
+                    {
+                        "attribute_alias": "page_alias"
+                    },
+                    {
+                        "attribute_alias": "uid:COUNT",
+                        "caption": "Actions"
+                    },
+                    {
+                        "attribute_alias": "tracker__LABEL",
+                        "caption": "Actions"
+                    }
+                ],
+                "sorters": [
+                    {
+                        "attribute_alias": "uid:COUNT",
+                        "direction": "desc"
+                    }
+                ]
+            }
+        ]
     }
 }
