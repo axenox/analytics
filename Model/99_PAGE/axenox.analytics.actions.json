@@ -11,10 +11,11 @@
     "created_by_user_selector": "0x31000000000000000000000000000000",
     "created_on": "2026-04-01 09:44:23",
     "modified_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
-    "modified_on": "2026-05-05 12:02:57",
+    "modified_on": "2026-05-06 10:31:52",
     "contents": {
         "widget_type": "PivotTable",
         "object_alias": "axenox.Analytics.action",
+        "autoload_data": false,
         "filters": [
             {
                 "attribute_alias": "tracker"
@@ -24,6 +25,11 @@
             },
             {
                 "attribute_alias": "page_alias"
+            },
+            {
+                "attribute_alias": "event__date",
+                "widget_type": "RangeSpinnerFilter",
+                "value_from": 0
             }
         ],
         "columns": [
