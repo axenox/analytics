@@ -85,56 +85,28 @@
     ],
     "rows": [
         {
-            "_EXPORT_SUMMARY": "Tracker [axenox.Analytics.tracker]",
-            "CREATED_ON": "2026-03-30 14:58:59",
-            "MODIFIED_ON": "2026-05-06 10:51:31",
-            "CREATED_BY_USER": "0x31000000000000000000000000000000",
+            "_EXPORT_SUMMARY": "Tracker prototype [axenox.Analytics.tracker_prototype]",
+            "CREATED_ON": "2026-05-06 10:46:17",
+            "MODIFIED_ON": "2026-05-06 10:46:17",
+            "CREATED_BY_USER": "0x11eea89602c1c3dca896005056be9fa0",
             "MODIFIED_BY_USER": "0x11eea89602c1c3dca896005056be9fa0",
-            "UID": "0x11f18e4d37dd6bb48e4d025041000001",
+            "UID": "0x11f186070c0d5cf88607002248e6305d",
             "READABLE_FLAG": 1,
             "WRITABLE_FLAG": 1,
             "COMMENTS": "",
             "DOCS": "",
-            "NAME": "Tracker",
+            "NAME": "Tracker prototype",
             "INHERIT_DATA_SOURCE_BASE_OBJECT": 1,
-            "DATA_SOURCE": "0x11f181e1f7d1d76881e1025041000001",
+            "DATA_SOURCE": "0x11e6afd8d2fa47e78943e4b318306b9a",
             "APP": "0x11f1985b1f397c68985b025041000001",
             "SHORT_DESCRIPTION": "",
-            "PARENT_OBJECT": null,
-            "DATA_ADDRESS_PROPS": null,
-            "DEFAULT_EDITOR_UXON": {
-                "widget_type": "Dialog",
-                "widgets": [
-                    {
-                        "attribute_alias": "project"
-                    },
-                    {
-                        "attribute_alias": "description",
-                        "height": 3
-                    },
-                    {
-                        "attribute_alias": "name"
-                    },
-                    {
-                        "attribute_alias": "prototype"
-                    },
-                    {
-                        "attribute_alias": "origin",
-                        "width": "max"
-                    },
-                    {
-                        "attribute_alias": "config_uxon",
-                        "widget_type": "InputUxon",
-                        "hide_caption": true,
-                        "width": "100%",
-                        "height": "max",
-                        "// TODO": "Dropdown mit allen möglichen Trackern einbauen. ",
-                        "root_prototype": "axenox/analytics/Analytics/Tracker/UI5Tracker.php"
-                    }
-                ]
+            "PARENT_OBJECT": "0x11e6be0ad5666af88ddee4b318306b9a",
+            "DATA_ADDRESS_PROPS": {
+                "folder_depth": 0
             },
-            "ALIAS": "tracker",
-            "DATA_ADDRESS": "tracker"
+            "DEFAULT_EDITOR_UXON": null,
+            "ALIAS": "tracker_prototype",
+            "DATA_ADDRESS": "*/*/Analytics/Tracker/*.php"
         }
     ],
     "totals_rows": [],
