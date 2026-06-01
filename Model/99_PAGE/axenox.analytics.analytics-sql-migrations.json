@@ -1,0 +1,21 @@
+{
+    "uid": "0x11f189d9f221f7b489d9002248e6305d",
+    "alias_with_namespace": "axenox.analytics.analytics-sql-migrations",
+    "menu_parent_page_selector": "0xb90bb0b8949f11e7a605028037ec0200",
+    "menu_index": 0,
+    "menu_visible": true,
+    "name": "Analytics SQL Migrations",
+    "description": "",
+    "intro": "",
+    "replaces_page_selector": null,
+    "created_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
+    "created_on": "2026-06-01 22:32:02",
+    "modified_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
+    "modified_on": "2026-06-01 22:32:02",
+    "contents": {
+        "object_alias": "axenox.Analytics.migrations",
+        "extend_widget": {
+            "page_alias": "exface.core.core-sql-migrations"
+        }
+    }
+}
