@@ -10,8 +10,8 @@
     "replaces_page_selector": null,
     "created_by_user_selector": "0x31000000000000000000000000000000",
     "created_on": "2026-03-31 18:17:16",
-    "modified_by_user_selector": "0x11eea89602c1c3dca896005056be9fa0",
-    "modified_on": "2026-05-06 12:47:48",
+    "modified_by_user_selector": "0x11ef9c3eea5627ce9c3e005056be9fa0",
+    "modified_on": "2026-06-02 17:44:19",
     "contents": {
         "widget_type": "DataTable",
         "object_alias": "axenox.Analytics.action",
@@ -40,6 +40,9 @@
             },
             {
                 "attribute_alias": "page_alias"
+            },
+            {
+                "attribute_alias": "widget_id"
             }
         ],
         "columns": [
